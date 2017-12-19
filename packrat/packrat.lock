@@ -1,0 +1,178 @@
+PackratFormat: 1.4
+PackratVersion: 0.4.8.1
+RVersion: 3.3.3
+Repos: CRAN=http://cran.rstudio.com/
+
+Package: RColorBrewer
+Source: CRAN
+Version: 1.1-2
+Hash: c0d56cd15034f395874c870141870c25
+
+Package: Rcpp
+Source: CRAN
+Version: 0.12.10
+Hash: 6cf65d0dd6a92f2d43c8d4805d33efe9
+
+Package: coda
+Source: CRAN
+Version: 0.19-1
+Hash: e5aff7792ef292cd4306e58e25e403fe
+
+Package: colorspace
+Source: CRAN
+Version: 1.3-2
+Hash: 0bf8618b585fa98eb23414cd3ab95118
+
+Package: deSolve
+Source: CRAN
+Version: 1.20
+Hash: 908d6c22cc8cb42f1b0de8665a55b853
+
+Package: dichromat
+Source: CRAN
+Version: 2.0-0
+Hash: 08eed0c80510af29bb15f840ccfe37ce
+
+Package: digest
+Source: CRAN
+Version: 0.6.12
+Hash: e53fb8c58673df868183697e39a6a4d6
+
+Package: expm
+Source: CRAN
+Version: 0.999-2
+Hash: e8f4ac7e9f15ec8b84b4f7ee5ab3104f
+
+Package: filehash
+Source: CRAN
+Version: 2.4-1
+Hash: c538dba13727572ad546637289c903ea
+
+Package: ggplot2
+Source: CRAN
+Version: 2.2.1
+Hash: 46e5cb78836848aa44655e577433f54b
+Requires: digest, gtable, lazyeval, plyr, reshape2, scales, tibble
+
+Package: gtable
+Source: CRAN
+Version: 0.2.0
+Hash: cd78381a9d3fea966ac39bd0daaf5554
+
+Package: labeling
+Source: CRAN
+Version: 0.3
+Hash: ecf589b42cd284b03a4beb9665482d3e
+
+Package: lazyeval
+Source: CRAN
+Version: 0.2.0
+Hash: 3d6e7608e65bbf5cb170dab1e3c9ed8b
+
+Package: magrittr
+Source: CRAN
+Version: 1.5
+Hash: bdc4d48c3135e8f3b399536ddf160df4
+
+Package: minpack.lm
+Source: CRAN
+Version: 1.2-1
+Hash: 88a03e2293868661e3471b440558bc7c
+
+Package: misc3d
+Source: CRAN
+Version: 0.8-4
+Hash: 44836021ee460c4176d6e070e931f488
+
+Package: munsell
+Source: CRAN
+Version: 0.4.3
+Hash: f96d896947fcaf9b6d0074002e9f4f9d
+Requires: colorspace
+
+Package: mvtnorm
+Source: CRAN
+Version: 1.0-6
+Hash: 1f55cdac387721d4eda1126ac9aba73b
+
+Package: nloptr
+Source: CRAN
+Version: 1.0.4
+Hash: 8053df240a4635aeb54fc68c6de67709
+
+Package: packrat
+Source: CRAN
+Version: 0.4.8-1
+Hash: 6ad605ba7b4b476d84be6632393f5765
+
+Package: plot3D
+Source: CRAN
+Version: 1.1
+Hash: e398fab1e0b4bdbec0ebd592f0c73406
+Requires: misc3d
+
+Package: plyr
+Source: CRAN
+Version: 1.8.4
+Hash: c9ddbdcfd74ff964e3e7d0b692a8dd70
+Requires: Rcpp
+
+Package: png
+Source: CRAN
+Version: 0.1-7
+Hash: 421d7d6e0fb4bd885ecbd909b6456b8b
+
+Package: pomp
+Source: github
+Version: 1.15.3.1
+Hash: 181e0375306f2e2cfddceaedf0098093
+Requires: coda, deSolve, digest, mvtnorm, nloptr, subplex
+GithubRepo: pomp
+GithubUsername: e3bo
+GithubRef: covar-names
+GithubSha1: 72741ae63d1cb1bf63c87f7ef614b7a5d894785d
+
+Package: reshape2
+Source: CRAN
+Version: 1.4.2
+Hash: 790c06c11c84041b814139d731a872b9
+Requires: Rcpp, plyr, stringr
+
+Package: rlang
+Source: CRAN
+Version: 0.1.2
+Hash: c17b638e3282aa222a47112d7a60bc66
+
+Package: scales
+Source: CRAN
+Version: 0.4.1
+Hash: 2d008b6e3fb9938255669ddf3c85f1f3
+Requires: RColorBrewer, Rcpp, dichromat, labeling, munsell, plyr
+
+Package: stringi
+Source: CRAN
+Version: 1.1.5
+Hash: b6308e49357a0b475f433599e0d8b5eb
+
+Package: stringr
+Source: CRAN
+Version: 1.2.0
+Hash: 25a86d7f410513ebb7c0bc6a5e16bdc3
+Requires: magrittr, stringi
+
+Package: subplex
+Source: CRAN
+Version: 1.4-1
+Hash: 1d034c24a4b8abeff32b9d7d8902f9fe
+
+Package: tibble
+Source: CRAN
+Version: 1.3.4
+Hash: 14e699c5a8d6fb4d22b3fdcd01dd0d96
+Requires: Rcpp, rlang
+
+Package: tikzDevice
+Source: CRAN
+Version: 0.10-1
+Hash: bbe2fab57a79052f7f02b687959b9b9d
+Requires: filehash, png
