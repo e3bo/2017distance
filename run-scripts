@@ -1,0 +1,18 @@
+#!/bin/bash
+
+set -e
+
+topd=$(pwd)
+tstamp=$(date +%Y-%m-%d_%H-%M-%S)
+wkdir="${topd}/work-${tstamp}"
+sdir="${topd}/src"
+hdir="/home/docker"
+
+mkdir ${wkdir}
+
+docker run -v ${sdir}:${hdir}/src:ro \
+       -v ${wkdir}:${hdir}/work \
+       -w ${hdir}/work \
+       --user $(id -u):$(id -g) \
+       eamon/2017distance:v20171219 /bin/bash -c \
+       "cp ../src/*.R . && cp ../src/Makefile . && ln -s ../packrat && cp ../.Rprofile . && make"
