@@ -1,4 +1,4 @@
-[![DOI](https://zenodo.org/badge/113359526.svg)](https://zenodo.org/badge/latestdoi/113359526)
+[![DOI](https://zenodo.org/badge/114819216.svg)](https://zenodo.org/badge/latestdoi/114819216)
 
 These files are available to reproduce the results for the manuscript
 "Estimating the distance to an epidemic threshold." The most important
