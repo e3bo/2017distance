@@ -1,3 +1,5 @@
+[![DOI](https://zenodo.org/badge/113359526.svg)](https://zenodo.org/badge/latestdoi/113359526)
+
 These files are available to reproduce the results for the manuscript
 "Estimating the distance to an epidemic threshold." The most important
 files are the R scripts that contain the code for all of the
