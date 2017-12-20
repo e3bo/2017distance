@@ -13,6 +13,7 @@ COPY ./packrat /home/docker/packrat
 COPY ./.Rprofile /home/docker/
 RUN /usr/bin/Rscript -e "setwd(\"/home/docker\"); source(\".Rprofile\"); packrat::restore()"
 RUN chown -R docker:docker /home/docker/
+RUN chmod -R 777 /home/docker
 
 
 
