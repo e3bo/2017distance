@@ -206,12 +206,13 @@ get_fit <- function(y, tstep) {
   spec <- spectrum(y, plot = FALSE)
   start$omega <- spec$freq[which.max(spec$spec)]
   start$a <- 0
+  K <- y[1]
   fit <- minpack.lm::nlsLM(
       y~sqrt(1 + a^2) * exp(x * gamma) * sin(x * omega + atan2(1, a)),
       start = start,
       control = minpack.lm::nls.lm.control(maxiter = 1000))
   fit1 <- minpack.lm::nlsLM(
-      y~exp(x * gamma),
+      y~K * exp(x * gamma),
       start = list(gamma = start$gamma),
       control = minpack.lm::nls.lm.control(maxiter = 1000))
   e <- fit$m$resid()
@@ -265,7 +266,7 @@ get_distance_est <- function(R0 = 17, N_0 = 2e6, eta = 2e-4, tstep = 1 / 52,
   lag.max <- dim(out)[3] - 30
   acesti <- acf(outI, lag.max = lag.max, plot = FALSE)$acf[, 1, 1]
   acests <- acf(outS, lag.max = lag.max, plot = FALSE)$acf[, 1, 1]
-  acestc <- acf(outC, lag.max = lag.max - 1, plot = FALSE)$acf[, 1, 1]
+  acestc <- acf(outC, lag.max = lag.max - 1, plot = FALSE)$acf[-1, 1, 1]
 
   if(any(is.na(acesti)) | any(is.na(acests))) {
     fitc <- fiti <- fits <- list(coef=c(omega = NA, gamma = NA, a = NA))
