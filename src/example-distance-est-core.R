@@ -207,16 +207,24 @@ get_fit <- function(y, tstep) {
   start$omega <- spec$freq[which.max(spec$spec)]
   start$a <- 0
   K <- y[1]
-  fit <- minpack.lm::nlsLM(
+  fit <- try(minpack.lm::nlsLM(
       y~sqrt(1 + a^2) * exp(x * gamma) * sin(x * omega + atan2(1, a)),
       start = start,
-      control = minpack.lm::nls.lm.control(maxiter = 1000))
-  fit1 <- minpack.lm::nlsLM(
+      control = minpack.lm::nls.lm.control(maxiter = 1000)))
+  fit1 <- try(minpack.lm::nlsLM(
       y~K * exp(x * gamma),
       start = list(gamma = start$gamma),
-      control = minpack.lm::nls.lm.control(maxiter = 1000))
-  e <- fit$m$resid()
-  e1 <- fit1$m$resid()
+      control = minpack.lm::nls.lm.control(maxiter = 1000)))
+  if (inherits(fit, "try-error")) {
+      e <- Inf
+  } else {
+      e <- fit$m$resid()
+  }
+  if (inherits(fit1, "try-error")) {
+      e1 <- Inf
+  } else {
+      e1 <- fit1$m$resid()
+  }
   if (sum(e^2) + 2 * 3 <  sum(e1^2) + 2){
     bestfit <- fit
     worstfit <- fit1
@@ -224,7 +232,10 @@ get_fit <- function(y, tstep) {
     bestfit <- fit1
     worstfit <- fit
   }
-  coefests <- coef(bestfit)[c("omega", "gamma", "a")]
+  coefests <- try(coef(bestfit)[c("omega", "gamma", "a")])
+  if (inherits(coefests, "try-error")){
+      coefests <- c(NA, NA, NA)
+  }
   names(coefests) <- c("omega", "gamma", "a")
   list(coef = coefests, fit = bestfit, altfit = worstfit)
 }
