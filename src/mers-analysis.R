@@ -28,10 +28,16 @@ reg_cases <- lapply(col_inds, tmpf, mat = cmd)
 mdr <- do.call(cbind, reg_cases)
 colnames(mdr) <- regs
 
-matplot(dates, mdr, type = 's')
-matplot(dates, apply(mdr, 2, cumsum), type = 's')
+#matplot(dates, mdr, type = 's')
+#matplot(dates, apply(mdr, 2, cumsum), type = 's')
 
-## scraps
+acores <- apply(mdr, 2, acf)
 
-ArRiyadCols <- grep("^Ar\\.Riyad[\\.0-9]{0,3}$", names(cmd))
-ArRiyadCases <- rowSums(cmd[,ArRiyadCols])
+hist(colSums(mdr)) ## two clusters
+is_big <- which(colSums(mdr) > 50) ## cluster with more cases
+
+matplot(seq_len(nrow(mdr)), mdr[, is_big], type = 'l')
+
+acf(mdr[seq(1, 300), is_big])
+acf(mdr[-seq(1, 300), is_big]) ## so with the large hosptial outbreaks, ac is higher
+
