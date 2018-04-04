@@ -194,6 +194,15 @@ S11n <- Re(sapply(sigma_num, "[", 1, 1))
 S22n <- Re(sapply(sigma_num, "[", 2, 2))
 gvarn <- sapply(sigma_num, function(x) det(Re(x[seq(1,2), seq(1,2)])))
 
+plot(S11n, S11, log='xy')
+plot(S22n, S22, log='xy')
+plot(gvarn, gvar, log = 'xy')
 
-out <- RunSDESIR(R0 = repnum_seq[3], n.intervals = 5e4)
+plot(repnum_seq, S11n, log='xy')
+lines(repnum_seq, S11)
 
+plot(repnum_seq, S22n, log='xy')
+lines(repnum_seq, S22)
+
+plot(repnum_seq, gvarn, log='xy')
+lines(repnum_seq, gvar)
