@@ -38,10 +38,10 @@ EndemicEquilSIR <- function(beta=(R0 * (mu + gamma)), eta=17/5e4,
 
 get_drift_mat <- function(R0 = 17, N_0 = 2e6, eta = 2e-8, tstep = 1 / 52,
                              tlength = 1000, burninyrs = 10, dnoise = 0,
-                             fnoise = 0, savemem = FALSE){
+                             fnoise = 0, p = 0){
 
   params <- c(b_0 = NA, d = 0.02, sigma_env_d = dnoise, sigma_env_f = fnoise,
-              gamma = 365 / 22, eta = eta, mu = N_0 * 0.02, N_0 = N_0, p = 0,
+              gamma = 365 / 22, eta = eta, mu = N_0 * 0.02, N_0 = N_0, p = p,
               dbdt = 0)
   params["b_0"] <- with(as.list(params), (gamma + d) * R0)
 
@@ -59,9 +59,9 @@ get_drift_mat <- function(R0 = 17, N_0 = 2e6, eta = 2e-8, tstep = 1 / 52,
   drift
 }
 
-repnum_seq <- 2^seq(-4, 5, length.out = 100)
+pvac_seq <- seq(0, 1, by = 0.01)
 
-F <- lapply(repnum_seq, get_drift_mat)
+F <- lapply(pvac_seq, function(x) get_drift_mat(p = x))
 
 D <- diag(2)
 
@@ -81,11 +81,12 @@ S11 <- Re(sapply(Sigma, "[", 1, 1))
 S22 <- Re(sapply(Sigma, "[", 2, 2))
 gvar <- sapply(Sigma, function(x) det(Re(x)))
 
-plot(repnum_seq, S11, log = 'xy', type = 'l', xlab = expression(R[0]), ylab = "Var(S)")
+plot(pvac_seq, S11, log = 'y', type = 'l', ylab = "Var(S)")
 png('varI-constant-perturb.png')
-plot(repnum_seq, S22, log = 'xy', type = 'l', xlab = expression(R[0]), ylab = "Var(I)")
+plot(pvac_seq, S22, log = '', type = 'l', xlab = expression(paste("Immunization level ", nu)), ylab = "Var(I)")
+abline(v= 16 / 17, col=3, lty = 2)
 dev.off()
-plot(repnum_seq, gvar, log = 'xy', type = 'l')
+plot(pvac_seq, gvar, log = 'y', type = 'l')
 
 
 P <- function(t, p.s, p.0) {
@@ -127,7 +128,7 @@ RunSDESIR <- function(beta=(R0 * (gamma + mu)), eta=2e-8,
   stopifnot(p.s <= 1)
   stopifnot(stop.time > start.time)
 
-  equil <- EndemicEquilSIR(beta = beta, eta = eta, gamma = gamma, mu = mu, p = 0)
+  equil <- EndemicEquilSIR(beta = beta, eta = eta, gamma = gamma, mu = mu, p = p.s)
 
   init.vars <- c(X = equil$S * pop.size, Y = equil$I * pop.size)
     
@@ -184,11 +185,11 @@ RunSDESIR <- function(beta=(R0 * (gamma + mu)), eta=2e-8,
   cbind(time=time, X=X, Y=Y, Z=(pop.size - X - Y))
 }
 
-get_numerical_var <- function(repnum){
-    var(RunSDESIR(R0=repnum, n.intervals = 5e4)[-seq(1,1e4),-1])
+get_numerical_var <- function(pvac){
+    var(RunSDESIR(p.s = pvac, n.intervals = 5e4)[-seq(1,1e4),-1])
 }
 
-sigma_num <- lapply(repnum_seq, get_numerical_var)
+sigma_num <- lapply(pvac_seq, get_numerical_var)
 
 S11n <- Re(sapply(sigma_num, "[", 1, 1))
 S22n <- Re(sapply(sigma_num, "[", 2, 2))
@@ -198,11 +199,11 @@ plot(S11n, S11, log='xy')
 plot(S22n, S22, log='xy')
 plot(gvarn, gvar, log = 'xy')
 
-plot(repnum_seq, S11n, log='xy')
-lines(repnum_seq, S11)
+plot(pvac_seq, S11n, log='y')
+lines(pvac_seq, S11)
 
-plot(repnum_seq, S22n, log='xy')
-lines(repnum_seq, S22)
+plot(pvac_seq, S22n, log='y')
+lines(pvac_seq, S22)
 
-plot(repnum_seq, gvarn, log='xy')
-lines(repnum_seq, gvar)
+plot(pvac_seq, gvarn, log='y')
+lines(pvac_seq, gvar)
