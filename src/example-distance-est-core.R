@@ -231,19 +231,17 @@ get_fit <- function(y, tstep, est_K = FALSE) {
   } else {
       e1 <- fit1$m$resid()
   }
-  if (sum(e^2) + 2 * 3 <  sum(e1^2) + 2){
-    bestfit <- fit
-    worstfit <- fit1
-  } else {
-    bestfit <- fit1
-    worstfit <- fit
-  }
-  coefests <- try(coef(bestfit)[c("omega", "gamma", "a")])
+  aic <- c(constant = sum(y^2), fit_decay = sum(e1^2) + 2 * (1 + est_K),
+           fit_osc = sum(e^2) + 2 * 3)
+  fits <- list(constant = "contant_y=0", fit_decay = fit1, fit_osc = fit)
+
+  names(aic)[which.min(aic)]
+  coefests <- try(coef(fits[[which.min(aic)]])[c("omega", "gamma", "a")])
   if (inherits(coefests, "try-error")){
       coefests <- c(NA, NA, NA)
   }
   names(coefests) <- c("omega", "gamma", "a")
-  list(coef = coefests, fit = bestfit, altfit = worstfit)
+  c(list(coef = coefests), fits)
 }
 
 ##
@@ -305,7 +303,7 @@ get_distance_est <- function(R0 = 17, N_0 = 2e6, eta = 2e-4, tstep = 1 / 52,
     ret
 }
 
-simulate_ests <- function(repnum, N_0, eta, tstep, dnoise, fnoise, prob_rep){
+simulate_ests <- function(repnum, N_0, eta, tstep, dnoise, fnoise, prob_rep = 1){
   replicate(100, get_distance_est(tlength = 520 * 2, R0 = repnum, N_0 = N_0,
                                   eta = eta, tstep = tstep, dnoise = dnoise,
                                   fnoise = fnoise, prob_rep = prob_rep),
