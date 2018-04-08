@@ -2,11 +2,10 @@
 source("../src/example-distance-est-core.R")
 
 prob_rep_seq <- c(0.01, 0.25, 0.5, 0.75, 1)
-repnum_seq <- c(0.5, 0.9)
+repnum_seq <- c(0.9)
 
 tstep_seq <- c(1 / 52)
 des <- expand.grid(prob_rep = prob_rep_seq, repnum = repnum_seq)
-des$repnum <- 0.9
 des$tstep <- 1 / 52
 des$N_0 <- 1e7
 des$eta <- 400 / des$N_0
