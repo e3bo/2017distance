@@ -6,6 +6,7 @@ distance-to-threshold-scatter.pdf \
 autocor-by-dnoise.pdf \
 autocor-by-dnoise-20yr.pdf \
 distance-vs-sampling-freq.pdf \
+distance-vs-reporting-prob.pdf \
 distance-vs-popsize.pdf \
 example-time-series.pdf \
 distance-to-threshold-scatter.pdf \
@@ -40,8 +41,15 @@ example-distance-est-dnoise.RData: example-distance-est-d-noise.R example-distan
 distance-vs-sampling-freq.tex: example-distance-est-sampling-plot.R example-distance-est-sampling.RData
 	./$< >sampling-plot.stdout 2>sampling-plot.stderr
 
+distance-vs-reporting-prob.tex: example-distance-est-reporting-prob-plot.R example-distance-est-reporting-prob.RData
+	./$< >reporting-plot.stdout 2>reporting-plot.stderr
+
 example-distance-est-sampling.RData: example-distance-est-sampling.R example-distance-est-core.R
 	./$< >est-sampling.stdout 2>est-sampling.stderr
+
+example-distance-est-reporting-prob.RData: example-distance-est-reporting-prob.R example-distance-est-core.R
+	./$< >est-sampling.stdout 2>est-sampling.stderr
+
 
 distance-vs-popsize.tex: example-distance-est-popsize-plot.R example-distance-est-popsize.RData
 	./$< >est-popsize-plot.stdout 2>est-popsize-plot.stderr

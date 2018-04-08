@@ -199,22 +199,28 @@ get_diffu <- function(beta, eta, d, gamma, mu, S, I, p, N_0, sigma_env_f, sigma_
   ret
 }
 
-get_fit <- function(y, tstep) {
+get_fit <- function(y, tstep, est_K = FALSE) {
   x <- seq_along(y) * tstep
   start <- list()
   start$gamma <- unname(coef(lm(log(I(abs(y + 1)))~x))["x"])
   spec <- spectrum(y, plot = FALSE)
   start$omega <- spec$freq[which.max(spec$spec)]
   start$a <- 0
-  K <- y[1]
+  start$K <- y[1]
   fit <- try(minpack.lm::nlsLM(
       y~sqrt(1 + a^2) * exp(x * gamma) * sin(x * omega + atan2(1, a)),
       start = start,
       control = minpack.lm::nls.lm.control(maxiter = 1000)))
-  fit1 <- try(minpack.lm::nlsLM(
-      y~K * exp(x * gamma),
-      start = list(gamma = start$gamma),
-      control = minpack.lm::nls.lm.control(maxiter = 1000)))
+  if (est_K) {
+      fit1 <- try(minpack.lm::nlsLM(y~K * exp(x * gamma),
+                    start = list(gamma = start$gamma, K = start$K),
+                    control = minpack.lm::nls.lm.control(maxiter = 1000)))
+  } else {
+      K <- start$K
+      fit1 <- try(minpack.lm::nlsLM(y~K * exp(x * gamma),
+                    start = list(gamma = start$gamma),
+                    control = minpack.lm::nls.lm.control(maxiter = 1000)))
+  }
   if (inherits(fit, "try-error")) {
       e <- Inf
   } else {
@@ -244,7 +250,7 @@ get_fit <- function(y, tstep) {
 
 get_distance_est <- function(R0 = 17, N_0 = 2e6, eta = 2e-4, tstep = 1 / 52,
                              tlength = 1000, burninyrs = 10, dnoise = 0,
-                             fnoise = 0, savemem = FALSE){
+                             fnoise = 0, savemem = FALSE, prob_rep = 1){
 
   params <- c(b_0 = NA, d = 0.02, sigma_env_d = dnoise, sigma_env_f = fnoise,
               gamma = 365 / 22, eta = eta, mu = N_0 * 0.02, N_0 = N_0, p = 0,
@@ -273,6 +279,7 @@ get_distance_est <- function(R0 = 17, N_0 = 2e6, eta = 2e-4, tstep = 1 / 52,
   outS <- ts(out["X1", 1, ], deltat = tstep)
   outR <- ts(out["X3", 1, ], deltat = tstep)
   outC <- ts(out["cases", 1, -1], deltat = tstep)
+  outC <- sapply(outC, function(x) rbinom(n = 1, size = x, prob = prob_rep))
 
   lag.max <- dim(out)[3] - 30
   acesti <- acf(outI, lag.max = lag.max, plot = FALSE)$acf[, 1, 1]
@@ -282,9 +289,9 @@ get_distance_est <- function(R0 = 17, N_0 = 2e6, eta = 2e-4, tstep = 1 / 52,
   if(any(is.na(acesti)) | any(is.na(acests))) {
     fitc <- fiti <- fits <- list(coef=c(omega = NA, gamma = NA, a = NA))
   } else {
-    fiti <- get_fit(acesti, tstep = tstep)
-    fits <- get_fit(acests, tstep = tstep)
-    fitc <- get_fit(acestc, tstep = tstep)
+    fiti <- get_fit(acesti, tstep = tstep, est_K = FALSE)
+    fits <- get_fit(acests, tstep = tstep, est_K = FALSE)
+    fitc <- get_fit(acestc, tstep = tstep, est_K = TRUE)
   }
     ret <- list(estsi = fiti$coef, estss = fits$coef, estsc = fitc$coef,
                 lambda = lambda, acesti = acesti, acests = acests,
@@ -298,14 +305,14 @@ get_distance_est <- function(R0 = 17, N_0 = 2e6, eta = 2e-4, tstep = 1 / 52,
     ret
 }
 
-simulate_ests <- function(repnum, N_0, eta, tstep, dnoise, fnoise){
+simulate_ests <- function(repnum, N_0, eta, tstep, dnoise, fnoise, prob_rep){
   replicate(100, get_distance_est(tlength = 520 * 2, R0 = repnum, N_0 = N_0,
                                   eta = eta, tstep = tstep, dnoise = dnoise,
-                                  fnoise = fnoise),
+                                  fnoise = fnoise, prob_rep = prob_rep),
             simplify = FALSE)
 }
 
-makedf <- function(x, repnum, N_0, tstep, dnoise, fnoise){
+makedf <- function(x, repnum, N_0, tstep, dnoise, fnoise, prob_rep = 1){
   pars <- t(sapply(x, "[[", "lambda"))
 
   estsi <- t(sapply(x, "[[", "estsi"))
@@ -325,7 +332,8 @@ makedf <- function(x, repnum, N_0, tstep, dnoise, fnoise){
   res$a[is.na(res$a)] <- 0
 
   data.frame(res, lambda1 = pars[1, 1], lambda2 = pars[1, 2], repnum = repnum,
-             N_0 = N_0, tstep = tstep, dnoise = dnoise, fnoise = fnoise)
+             N_0 = N_0, tstep = tstep, dnoise = dnoise, fnoise = fnoise,
+             prob_rep = prob_rep)
 }
 
 calc_acf <- function(R0 = 17, N_0 = 2e6, eta = 2e-4, tstep = 1 / 52,

@@ -1,7 +1,7 @@
 #!/usr/bin/Rscript
 source("../src/example-distance-est-core.R")
 
-repnum_seq <- c(0.1, 2, 16)
+repnum_seq <- c(0.9, 2, 16)
 tstep_seq <- c(1 / 365, 1 / 52, 4 / 52, 1)
 des <- expand.grid(repnum = repnum_seq, tstep = tstep_seq)
 des$N_0 <- 1e7
