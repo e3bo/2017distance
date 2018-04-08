@@ -4,14 +4,14 @@ library(ggplot2)
 library(tikzDevice)
 load("example-distance-est-reporting-prob.RData")
 
-sub <- estpdf
+sub <- estpdf[estpdf$var == "C", ]
 
 sub$R0 <- factor(paste0("$R_0 = ", sub$repnum, "$"),
                  levels = paste0("$R_0 = ", sort(unique(sub$repnum)), "$"))
 
 g <- ggplot(data = sub,
             aes(y = sqrt((omega) ^ 2 + (gamma) ^ 2), x = prob_rep))
-g <- g + geom_jitter(width = 0.05, height = 0, alpha = 0.5)
+g <- g + geom_jitter(width = 0.05, height = 0, alpha = 0.5, color = palette[1])
 g <- g + geom_point(data = sub, shape=4, color=1, aes(y=Mod(lambda1)))
 g <- g + scale_y_log10()
 g <- g + ylab("Distance to threshold\n")
