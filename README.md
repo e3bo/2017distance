@@ -13,5 +13,5 @@ running the bash script ``run-scripts`` from within the directory
 containing this README will pull down the image and run the Makefile
 inside of it to reproduce all of the results. The results will be
 placed in a time-stamped subdirectory. Reproducing the results takes
-less the 60 minutes on a workstation with 20 2.1GHz processors and 188 G
-of memory. The results themselves use up about 3.6 G of disk.
+less the 40 minutes on a workstation with 20 2.1GHz processors and 188 G
+of memory. The results themselves use up about 500M of disk.
