@@ -9,7 +9,7 @@ linear_sir_stepfun <- pomp::Csnippet("
   double dw2 = rnorm(0, sqrt(dt));
   double Z1new = f11 * Z1 * dt + f12 * Z2 * dt + b11 * dw1 + b12 * dw2 + Z1;
   double Z2new = f21 * Z1 * dt + f22 * Z2 * dt + b12 * dw1 + b22 * dw2 + Z2;
-  cases += Z2 * gamma;
+  cases += Z2 * gamma * dt;
   Z1 = Z1new;
   Z2 = Z2new;
 ")
@@ -32,7 +32,7 @@ create_sir_sim <- function(times = seq(0, 9),
   simp <- pomp::pomp(data = data, times = "time", t0 = t0, params = params,
                      rprocess = pomp::euler.sim(step.fun = linear_sir_stepfun,
                      delta.t = delta.t),
-                     zeronames = "cases",
+                     #zeronames = "cases",
                      obsnames = "reports",
                      statenames = statenames,
                      paramnames = paramnames,
@@ -125,8 +125,7 @@ mat2pars <- function(F, D, opars = c(gamma = 1, Z1_0 = 10, Z2_0 = 0)){
 #Fl <- list(matrix(c(-1, 0, 0, -.3), 2, 2))
 pars <- Map(mat2pars, Fl, Dl)
 
-sim <- create_sir_sim(params = pars[[1]], delta.t = 1e-4)
-
+sim <- create_sir_sim(params = pars[[1]], delta.t = 1e-3)
 
 tseq <- seq(0, 10, length.out=100)
 out <- simulate(sim, states = TRUE, times = tseq, nsim = 1e4)
@@ -161,3 +160,30 @@ plot(tfine, S12, type = 'l')
 points(tseq, sigman_seq[2,])
 plot(tfine, S22, type = 'l')
 points(tseq, sigman_seq[5,])
+
+
+## check solution for mean of cases
+
+plot(tseq, colMeans(out["cases", ,]))
+plot(tseq[-1], diff(colMeans(out["cases", ,])))
+plot(tseq, colMeans(out["Z2", ,]))
+
+ExpectedVals <- function(Z1_0, Z2_0, t, F){
+  Lambda <- eigen(F)$values
+  T <- eigen(F)$vectors
+  Re(T %*% diag(exp(Lambda * t)) %*% solve(T) %*% c(Z1_0, Z2_0))
+}
+
+EZ2 <- sapply(tseq, function(x) ExpectedVals(10, 0, t = x, Fl[[1]]))[2,]
+lines(tseq, EZ2)
+
+ExpectedCases <- function(Z1_0, Z2_0, t, F){
+  Lambda <- eigen(F)$values
+  T <- eigen(F)$vectors
+  Re(T %*% diag((exp(Lambda * t) - 1) / Lambda) %*% solve(T) %*% c(Z1_0, Z2_0))[2]
+}
+
+par(mfrow = c(1,1))
+Ecases <- sapply(tseq, function(x) ExpectedCases(10, 0, t = x, Fl[[1]]))
+plot(tseq, Ecases, type = 'l')
+points(tseq, colMeans(out["cases", ,]))
