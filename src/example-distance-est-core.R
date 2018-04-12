@@ -255,10 +255,10 @@ extract_eigen <- function(fit, tstep){
     if (length(pars) == 0) {
         ret <- c(NA, NA, NA)
     } else if ("ar2" %in% names(pars)) {
-        if (pars["ar1"] ^ 2 >= pars["ar2"] * 4) {
+        if (pars["ar1"] ^ 2 + pars["ar2"] * 4 >= 0) {
             ret <- c(NA, NA, NA)
         } else {
-            R <- -sqrt(pars["ar2"])
+            R <- sqrt(-pars["ar2"])
             gamma <- log(R)  / tstep
             omega <- acos(pars["ar1"]  / (2 * R))
             ret <- c(omega, gamma, NA)
@@ -273,7 +273,7 @@ extract_eigen <- function(fit, tstep){
 get_arma_fit <- function(devs, q = FALSE, tstep){
     orders <- list(c(0, 0, 0), c(1, 0, q), c(2, 0, q))
     tmpf <- function(ord) {
-        arima(x = devs, order = ord, include.mean = FALSE)
+        arima(x = devs, order = ord, include.mean = FALSE, method = "ML")
     }
     fits <- lapply(orders, tmpf)
     scores <- sapply(fits, AIC)    
@@ -327,11 +327,15 @@ get_distance_est <- function(R0 = 17, N_0 = 2e6, eta = 2e-4, tstep = 1 / 52,
     fitc <- get_fit(acestc, tstep = tstep, est_K = TRUE)
   }
 
-    armafit <- get_arma_fit(devs = outI - mean(outI), tstep = tstep)
-    browser()
-    
-
-
+    if (FALSE) {
+    armafiti <- try(get_arma_fit(devs = outI - mean(outI), tstep = tstep))
+    if (!inherits(armafiti, "try-error")){
+        arma_ests <- armafiti[[3]]
+    } else {
+        arma_ests <- c(omega = NA, gamma = NA, a = NA)
+    }
+    }
+    #armafits <- try(get_arma_fit(devs = outS - mean(outS), tstep = tstep))
     
     ret <- list(estsi = fiti$coef, estss = fits$coef, estsc = fitc$coef,
                 lambda = lambda, acesti = acesti, acests = acests,
