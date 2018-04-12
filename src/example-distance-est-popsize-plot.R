@@ -17,7 +17,7 @@ g <- ggplot(data = sub,
             aes(y = sqrt((omega) ^ 2 + (gamma) ^ 2), x = N_0, color = var_plot))
 g <- g + geom_jitter(width = 0.05, height = 0, alpha = 0.5)
 g <- g + geom_point(data = sub, shape=4, color=1, aes(y=Mod(lambda1)))
-breaks <- c(1e2, 1e3, 1e5, 1e6)
+breaks <- c(1e2, 1e3, 1e4, 1e5, 1e6)
 labs <- paste0(paste0("$", paste0("10^", log10(breaks))), "$")
 g <- g + scale_x_continuous(breaks = breaks, labels = labs, trans = "log10")
 g <- g + ylab("Distance to threshold\n")
