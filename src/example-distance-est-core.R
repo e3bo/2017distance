@@ -202,21 +202,20 @@ get_diffu <- function(beta, eta, d, gamma, mu, S, I, p, N_0, sigma_env_f, sigma_
 get_fit <- function(y, tstep, est_K = FALSE) {
   x <- seq_along(y) * tstep
   start <- list()
-  start$gamma <- unname(coef(lm(log(I(abs(y + 1)))~x))["x"])
+  start$gamma <- unname(coef(lm(log(I(abs(y)))~x))["x"])
   spec <- spectrum(y, plot = FALSE)
-  start$omega <- spec$freq[which.max(spec$spec)]
+  start$omega <- spec$freq[which.max(spec$spec)] / tstep
   start$a <- 0
-  start$K <- y[1]
   fit_osc <- try(minpack.lm::nlsLM(
       y~sqrt(1 + a^2) * exp(x * gamma) * sin(x * omega + atan2(1, a)),
       start = start,
       control = minpack.lm::nls.lm.control(maxiter = 1000)))
   if (est_K) {
       fit_decay <- try(minpack.lm::nlsLM(y~K * exp(x * gamma),
-                    start = list(gamma = start$gamma, K = start$K),
+                    start = list(gamma = start$gamma, K = y[1]),
                     control = minpack.lm::nls.lm.control(maxiter = 1000)))
   } else {
-      K <- start$K
+      K <- y[1]
       fit_decay <- try(minpack.lm::nlsLM(y~K * exp(x * gamma),
                     start = list(gamma = start$gamma),
                     control = minpack.lm::nls.lm.control(maxiter = 1000)))
@@ -276,7 +275,7 @@ get_arma_fit <- function(devs, q = FALSE, tstep){
         arima(x = devs, order = ord, include.mean = FALSE, method = "ML")
     }
     fits <- lapply(orders, tmpf)
-    scores <- sapply(fits, AIC)    
+    scores <- sapply(fits, AIC)
     coefests <- extract_eigen(fits[[which.min(scores)]], tstep)
     list(fits, scores, coefests)
 }
