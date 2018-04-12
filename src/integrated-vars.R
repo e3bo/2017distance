@@ -187,3 +187,5 @@ par(mfrow = c(1,1))
 Ecases <- sapply(tseq, function(x) ExpectedCases(10, 0, t = x, Fl[[1]]))
 plot(tseq, Ecases, type = 'l')
 points(tseq, colMeans(out["cases", ,]))
+
+## check
