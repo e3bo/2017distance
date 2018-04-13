@@ -199,26 +199,29 @@ get_diffu <- function(beta, eta, d, gamma, mu, S, I, p, N_0, sigma_env_f, sigma_
   ret
 }
 
-get_fit <- function(y, tstep, est_K = FALSE) {
-  x <- seq_along(y) * tstep
+get_fit <- function(y, tstep, est_K = FALSE, cutoff = .06) {
+  x <- (seq_along(y) - 1) * tstep
   start <- list()
-  start$gamma <- try(unname(coef(lm(log(I(abs(y)))~x))["x"]))
-  if (!inherits(start$gamma, "try-error")){      
-    spec <- spectrum(y, plot = FALSE)
+  im <- match(TRUE, abs(y) < cutoff)
+  xs <- x[1:(im - 1)]
+  ys <- y[1:(im - 1)]
+  start$gamma <- try(unname(coef(lm(log(I(abs(ys))) ~ xs))["xs"]))
+  if (!inherits(start$gamma, "try-error")){
+    spec <- spectrum(y, plot = FALSE, na.action = na.exclude)
     start$omega <- spec$freq[which.max(spec$spec)] / tstep
     start$a <- 0
     fit_osc <- try(minpack.lm::nlsLM(
         y~sqrt(1 + a^2) * exp(x * gamma) * sin(x * omega + atan2(1, a)),
-        start = start,
+        start = start, na.action = na.exclude,
         control = minpack.lm::nls.lm.control(maxiter = 1000)))
     if (est_K) {
         fit_decay <- try(minpack.lm::nlsLM(y~K * exp(x * gamma),
-                      start = list(gamma = start$gamma, K = y[1]),
+                      start = list(gamma = start$gamma, K = y[1]), na.action = na.exclude,
                       control = minpack.lm::nls.lm.control(maxiter = 1000)))
     } else {
         K <- y[1]
         fit_decay <- try(minpack.lm::nlsLM(y~K * exp(x * gamma),
-                      start = list(gamma = start$gamma),
+                      start = list(gamma = start$gamma),na.action = na.exclude,
                       control = minpack.lm::nls.lm.control(maxiter = 1000)))
     }
     if (inherits(fit_osc , "try-error")) {
@@ -233,13 +236,12 @@ get_fit <- function(y, tstep, est_K = FALSE) {
     }
     nll <- function(resids) {
         n <- length(resids)
-        log(sum(resids ^ 2)) * n
+        (sum(resids ^ 2))
     }
     aic <- c(constant = nll(y), fit_decay = nll(e_decay) + 2 * (1 + est_K),
              fit_osc = nll(e_osc) + 2 * 3)
-    fits <- list(constant = "contant_y=0", fit_decay = fit_decay, fit_osc = fit_osc)
+    fits <- list(constant = "constant_y=0", fit_decay = fit_decay, fit_osc = fit_osc)
 
-    names(aic)[which.min(aic)]
     coefests <- try(coef(fits[[which.min(aic)]])[c("omega", "gamma", "a")])
     if (inherits(coefests, "try-error")){
         coefests <- c(NA, NA, NA)
@@ -282,7 +284,15 @@ get_arma_fit <- function(devs, q = FALSE, tstep){
     }
     fits <- lapply(orders, tmpf)
     scores <- sapply(fits, AIC)
-    coefests <- extract_eigen(fits[[which.min(scores)]], tstep)
+    ord <- order(scores)
+    if (all(ord == c(3, 2, 1))) {
+      coefests <- extract_eigen(fits[[3]], tstep)
+      if (is.na(coefests["gamma"])) {
+        coefests <- extract_eigen(fits[[2]], tstep)
+      }
+    } else {
+      coefests <- extract_eigen(fits[[which.min(scores)]], tstep)
+    }
     list(fits, scores, coefests)
 }
 
@@ -320,16 +330,18 @@ get_distance_est <- function(R0 = 17, N_0 = 2e6, eta = 2e-4, tstep = 1 / 52,
   outC <- sapply(outC, function(x) rbinom(n = 1, size = x, prob = prob_rep))
 
   lag.max <- dim(out)[3] - 30
+  cutoff <- qnorm((1 + 0.95) / 2) / sqrt(dim(out)[3])
   acesti <- acf(outI, lag.max = lag.max, plot = FALSE)$acf[, 1, 1]
   acests <- acf(outS, lag.max = lag.max, plot = FALSE)$acf[, 1, 1]
   acestc <- acf(outC, lag.max = lag.max - 1, plot = FALSE)$acf[-1, 1, 1]
 
+
   if(any(is.na(acesti)) | any(is.na(acests))) {
     fitc <- fiti <- fits <- list(coef=c(omega = NA, gamma = NA, a = NA))
   } else {
-    fiti <- get_fit(acesti, tstep = tstep, est_K = FALSE)
-    fits <- get_fit(acests, tstep = tstep, est_K = FALSE)
-    fitc <- get_fit(acestc, tstep = tstep, est_K = TRUE)
+    fiti <- get_fit(acesti, tstep = tstep, est_K = FALSE, cutoff = cutoff)
+    fits <- get_fit(acests, tstep = tstep, est_K = FALSE, cutoff = cutoff)
+    fitc <- get_fit(acestc, tstep = tstep, est_K = TRUE, cutoff = cutoff)
   }
 
     if (FALSE) {
@@ -341,7 +353,7 @@ get_distance_est <- function(R0 = 17, N_0 = 2e6, eta = 2e-4, tstep = 1 / 52,
     }
     }
     #armafits <- try(get_arma_fit(devs = outS - mean(outS), tstep = tstep))
-    
+
     ret <- list(estsi = fiti$coef, estss = fits$coef, estsc = fitc$coef,
                 lambda = lambda, acesti = acesti, acests = acests,
                 acestc = acestc, fiti = fiti$fit, fits = fits$fit,
