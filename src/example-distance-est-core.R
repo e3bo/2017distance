@@ -202,49 +202,55 @@ get_diffu <- function(beta, eta, d, gamma, mu, S, I, p, N_0, sigma_env_f, sigma_
 get_fit <- function(y, tstep, est_K = FALSE) {
   x <- seq_along(y) * tstep
   start <- list()
-  start$gamma <- unname(coef(lm(log(I(abs(y)))~x))["x"])
-  spec <- spectrum(y, plot = FALSE)
-  start$omega <- spec$freq[which.max(spec$spec)] / tstep
-  start$a <- 0
-  fit_osc <- try(minpack.lm::nlsLM(
-      y~sqrt(1 + a^2) * exp(x * gamma) * sin(x * omega + atan2(1, a)),
-      start = start,
-      control = minpack.lm::nls.lm.control(maxiter = 1000)))
-  if (est_K) {
-      fit_decay <- try(minpack.lm::nlsLM(y~K * exp(x * gamma),
-                    start = list(gamma = start$gamma, K = y[1]),
-                    control = minpack.lm::nls.lm.control(maxiter = 1000)))
-  } else {
-      K <- y[1]
-      fit_decay <- try(minpack.lm::nlsLM(y~K * exp(x * gamma),
-                    start = list(gamma = start$gamma),
-                    control = minpack.lm::nls.lm.control(maxiter = 1000)))
-  }
-  if (inherits(fit_osc , "try-error")) {
-      e_osc <- Inf
-  } else {
-      e_osc <- fit_osc$m$resid()
-  }
-  if (inherits(fit_decay, "try-error")) {
-      e_decay <- Inf
-  } else {
-      e_decay <- fit_decay$m$resid()
-  }
-  nll <- function(resids) {
-      n <- length(resids)
-      log(sum(resids ^ 2)) * n
-  }
-  aic <- c(constant = nll(y), fit_decay = nll(e_decay) + 2 * (1 + est_K),
-           fit_osc = nll(e_osc) + 2 * 3)
-  fits <- list(constant = "contant_y=0", fit_decay = fit_decay, fit_osc = fit_osc)
+  start$gamma <- try(unname(coef(lm(log(I(abs(y)))~x))["x"]))
+  if (!inherits(start$gamma, "try-error")){      
+    spec <- spectrum(y, plot = FALSE)
+    start$omega <- spec$freq[which.max(spec$spec)] / tstep
+    start$a <- 0
+    fit_osc <- try(minpack.lm::nlsLM(
+        y~sqrt(1 + a^2) * exp(x * gamma) * sin(x * omega + atan2(1, a)),
+        start = start,
+        control = minpack.lm::nls.lm.control(maxiter = 1000)))
+    if (est_K) {
+        fit_decay <- try(minpack.lm::nlsLM(y~K * exp(x * gamma),
+                      start = list(gamma = start$gamma, K = y[1]),
+                      control = minpack.lm::nls.lm.control(maxiter = 1000)))
+    } else {
+        K <- y[1]
+        fit_decay <- try(minpack.lm::nlsLM(y~K * exp(x * gamma),
+                      start = list(gamma = start$gamma),
+                      control = minpack.lm::nls.lm.control(maxiter = 1000)))
+    }
+    if (inherits(fit_osc , "try-error")) {
+        e_osc <- Inf
+    } else {
+        e_osc <- fit_osc$m$resid()
+    }
+    if (inherits(fit_decay, "try-error")) {
+        e_decay <- Inf
+    } else {
+        e_decay <- fit_decay$m$resid()
+    }
+    nll <- function(resids) {
+        n <- length(resids)
+        log(sum(resids ^ 2)) * n
+    }
+    aic <- c(constant = nll(y), fit_decay = nll(e_decay) + 2 * (1 + est_K),
+             fit_osc = nll(e_osc) + 2 * 3)
+    fits <- list(constant = "contant_y=0", fit_decay = fit_decay, fit_osc = fit_osc)
 
-  names(aic)[which.min(aic)]
-  coefests <- try(coef(fits[[which.min(aic)]])[c("omega", "gamma", "a")])
-  if (inherits(coefests, "try-error")){
-      coefests <- c(NA, NA, NA)
+    names(aic)[which.min(aic)]
+    coefests <- try(coef(fits[[which.min(aic)]])[c("omega", "gamma", "a")])
+    if (inherits(coefests, "try-error")){
+        coefests <- c(NA, NA, NA)
+    }
+    names(coefests) <- c("omega", "gamma", "a")
+    c(list(coef = coefests), fits)
+  } else {
+    c(list(coef = c("omega" = NA, "gamma" = NA, "a" = NA),
+           fits = list(constant = "contant_y=0",
+                       fit_decay = NA, fit_osc = NA)))
   }
-  names(coefests) <- c("omega", "gamma", "a")
-  c(list(coef = coefests), fits)
 }
 
 ##
