@@ -4,7 +4,7 @@ source("../src/example-distance-est-core.R")
 repnum_seq <- c(0.1, 2, 16)
 popsize_seq <- c(1e6, 1e5, 1e4, 1e3, 1e2)
 des <- expand.grid(repnum = repnum_seq, N_0 = popsize_seq)
-des$eta <- 400 / des$N_0
+des$eta <- 1 / 3 / sqrt(des$N_0)
 des$tstep <- 1 / 52
 des$fnoise <- 0
 des$dnoise <- 0

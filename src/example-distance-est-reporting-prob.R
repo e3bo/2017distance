@@ -8,7 +8,7 @@ tstep_seq <- c(1 / 52)
 des <- expand.grid(prob_rep = prob_rep_seq, repnum = repnum_seq)
 des$tstep <- 1 / 52
 des$N_0 <- 1e7
-des$eta <- 400 / des$N_0
+des$eta <- 1 / 3 / sqrt(des$N_0)
 des$dnoise <- 0
 des$fnoise <- 0
 

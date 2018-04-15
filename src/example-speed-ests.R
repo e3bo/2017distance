@@ -19,7 +19,7 @@ get_drift_eq_at_t <- function(params, tpoint){
     list(equil = equil, drift = drift, lambda = lambda)
 }
 
-get_speed_est <- function(R0_0 = 0, N_0 = 1e7, eta = 400e-7, tstep = 1 / 52,
+get_speed_est <- function(R0_0 = 0, N_0 = 1e7, eta = 1 / 3 / sqrt(1e7), tstep = 1 / 52,
                           tlength = 520 * 4, burninyrs = 10, dnoise = 0,
                           fnoise = 0, dbdt = 0, lag.max = 52){
 

@@ -5,7 +5,7 @@ repnum_seq <- c(0.9, 2, 16)
 tstep_seq <- c(1 / 365, 1 / 52, 4 / 52, 1)
 des <- expand.grid(repnum = repnum_seq, tstep = tstep_seq)
 des$N_0 <- 1e7
-des$eta <- 400 / des$N_0
+des$eta <- 1 / 3 / sqrt(des$N_0)
 des$dnoise <- 0
 des$fnoise <- 0
 

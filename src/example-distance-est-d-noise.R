@@ -6,7 +6,7 @@ dnoise_seq <- c(0.01, 0.1, 1)
 N_0_seq <- c(1e7, 1e9)
 des <- expand.grid(repnum = repnum_seq, dnoise = dnoise_seq, N_0 = N_0_seq)
 
-des$eta <- 400 / 1e7
+des$eta <- 1 / 3 / sqrt(1e7)
 des$tstep <- 1 / 52
 des$fnoise <- 0
 

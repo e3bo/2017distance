@@ -6,7 +6,7 @@ fnoise_seq <- c(0.01, 0.1, 1)
 N_0_seq <- c(1e7, 1e9)
 des <- expand.grid(repnum = repnum_seq, fnoise = fnoise_seq, N_0 = N_0_seq)
 des$dnoise <- 0
-des$eta <- 400 / des$N_0
+des$eta <- 1 / 3 / sqrt(1e7)
 des$tstep <- 1 / 52
 
 estl <- parallel::mcMap(simulate_ests, repnum = des$repnum, N_0 = des$N_0,
