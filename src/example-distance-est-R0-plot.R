@@ -15,9 +15,9 @@ g <- g + geom_point(data = sub, shape=2,
 g <- g + theme_minimal()
 ggsave("gamma-omega-scatter.pdf", plot = g)
 
-sub$var_plot <- as.character(sub$var)
-sub$var_plot[sub$var == "I"] <- "Y, infecteds"
-sub$var_plot[sub$var == "S"] <- "X, susceptibles"
+sub$var_plot <- factor(sub$var, levels=c("S", "I", "C"), labels=c("X", "Y", "C"))
+names(palette) <- c("X", "Y", "C")
+
 g <- ggplot(data = sub,
             aes(y = sqrt((omega) ^ 2 + (gamma) ^ 2), x = repnum, color = var_plot))
 g <- g + geom_jitter(width = 0.05, height = 0, alpha = 0.5)
@@ -30,7 +30,12 @@ g <- g + theme_minimal()
 g <- g + scale_color_manual(values = palette)
 g <- g + theme(axis.text.x=element_text(angle = 90, hjust = 1, vjust=0.5))
 g <- g + theme(legend.position = "top")
+g <- g + scale_color_manual(values = palette,
+                            labels = list("X" = "Susceptibles, $X$",
+                                          "Y" = "Infecteds, $Y$",
+                                          "C" = "Case reports, $C$"))
 
-tikz("distance-to-threshold-scatter.tex", width = 3.25, height = 4, standAlone = TRUE)
+
+tikz("distance-to-threshold-scatter.tex", width = 3.25, height = 3.25, standAlone = TRUE)
 print(g)
 dev.off()

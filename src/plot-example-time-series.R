@@ -34,6 +34,6 @@ g <- g + labs(x = "Time (y)", y = "Deviation from mean")
 g <- g + theme(axis.title.y = element_text(margin = margin(0, 10, 0, 0)))
 g <- g + theme(axis.title.x = element_text(margin = margin(10, 0, 0, 0)))
 
-tikz("example-time-series.tex", width = 6.5, height = 4, standAlone = TRUE)
+tikz("example-time-series.tex", width = 6.5, height = 3.5, standAlone = TRUE)
 print(g)
 dev.off()
