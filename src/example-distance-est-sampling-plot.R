@@ -32,6 +32,6 @@ g <- g + scale_color_manual(values = palette,
                                           "Y" = "Infecteds, $Y$",
                                           "C" = "Case reports, $C$"))
 
-tikz("distance-vs-sampling-freq.tex", width = 6.5, height = 5, standAlone = TRUE)
+tikz("distance-vs-sampling-freq.tex", width = 6.5, height = 3.25, standAlone = TRUE)
 print(g)
 dev.off()
