@@ -21,6 +21,6 @@ g <- g + theme(legend.position = "top")
 g <- g + theme(axis.text.x=element_text(angle = 90, hjust = 1, vjust=0.5))
 #g <- g + facet_wrap(~R0)
 
-tikz("distance-vs-reporting-prob.tex", width = 4, height = 5, standAlone = TRUE)
+tikz("distance-vs-reporting-prob.tex", width = 3.25, height = 4, standAlone = TRUE)
 print(g)
 dev.off()
