@@ -17,12 +17,12 @@ if (any(imaginary)){
 
 dist2 <- ifelse(is.na(e2["omega", ]), sqrt(e2["gamma", ]^2), sqrt(e2["gamma", ]^2 - e2["omega", ]^2))
 dist1 <- ifelse(is.na(e1["omega", ]), sqrt(e1["gamma", ]^2), sqrt(e1["gamma", ]^2 - e1["omega", ]^2))
-speed_ests <- dist1 - dist2
+speed_ests <- dist2 - dist1
 
 target_dist <- sapply(se[[1]]$del, "[[", "lambda")[1, ]
 itime <- time(se[[1]]$outI)
 target_dist <- -ts(target_dist, start = min(itime), end = max(itime), deltat = itime[2] - itime[1])
-target_change <- -target_dist[round(itime * 52) == 40 * 52] + target_dist[round(itime * 52) == 20 * 52]
+target_change <- target_dist[round(itime * 52) == 40 * 52] - target_dist[round(itime * 52) == 20 * 52]
 
 tikz("change-in-distance.tex", width = 6.5, height = 6, standAlone = TRUE)
 par(mfrow = c(3, 1), mar = c(4, 5, 1, 1), cex = 1)
